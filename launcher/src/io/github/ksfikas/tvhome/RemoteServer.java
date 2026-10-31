@@ -73,6 +73,7 @@ final class RemoteServer {
     /** Start if turned on (called when the launcher starts); harmless to call again. */
     static synchronized void start(Context c) {
         if (socket != null || !enabled(c)) return;
+        Notice.hook(c);
         Context app = c.getApplicationContext();
         try {
             socket = new ServerSocket(PORT);
@@ -279,6 +280,12 @@ final class RemoteServer {
                 }
                 for (String e : HomeHooks.EVENTS) o.put(e, HomeHooks.url(c, e));
                 return o;
+            }
+            case "/api/notify": {
+                if (Notice.line(p.get("title"), p.get("text")).isEmpty()) return err(c, "empty_notice", R.string.remote_empty_notice);
+                Notice.hook(c);
+                Notice.show(c, p.get("title"), p.get("text"), Notice.seconds(p.get("seconds")));
+                return ok();
             }
             case "/api/hooktest": {
                 String u = p.getOrDefault("url", "").trim();

@@ -105,7 +105,7 @@ separate TV client.
   the TV off and on, the channel list, the guide (now and next on every channel, or search) with
   record / every episode / remind me, a channel filter, a Tvheadend status card, opening apps, and
   sending photos as wallpapers, a second-screen card (synopsis, progress, what is next), a settings
-  backup and optional smart-home hooks. Five wrong PIN attempts lock pairing for a minute. Android
+  backup and optional smart-home hooks. A web address on the box, `/api/notify` (title, text, seconds; send the pairing token in an `X-Token` header), shows a short banner over live TV and the home screen, for Home Assistant, a script or a doorbell. Five wrong PIN attempts lock pairing for a minute. Android
   doesn't let it press keys inside other apps.
 - **Voice search**: the mic in Search uses Google TV's voice input through the remote.
 - **Your dock**: hold OK on any app for Open, Add to dock / Move left / Move right / Remove from dock,
