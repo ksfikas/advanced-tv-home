@@ -97,6 +97,7 @@ public class PlayerActivity extends Activity {
                 case "info": p.showBanner(); break;
                 case "sleep": try { p.setSleep(Long.parseLong(arg) * 60_000); } catch (NumberFormatException ignored) { } break;
                 case "stop": p.finish(); break;
+                case "pip": p.enterPip(); break;
             }
         });
     }
@@ -237,6 +238,8 @@ public class PlayerActivity extends Activity {
     /** True while we open one of our own screens (guide, recordings): that is not the user leaving. */
     private boolean openingOwnScreen;
 
+    private boolean backTracking, backHeld;
+
     /** Live TV or a recording from our own player, with a picture; not radio or a tuner app's TvView. */
     private boolean canPip() {
         return android.os.Build.VERSION.SDK_INT >= 26
@@ -251,13 +254,6 @@ public class PlayerActivity extends Activity {
         try {
             enterPictureInPictureMode(new PictureInPictureParams.Builder().setAspectRatio(new Rational(16, 9)).build());
         } catch (IllegalStateException | IllegalArgumentException ignored) { } // not allowed right now: stay full-screen
-    }
-
-    /** Home (or Recents) pressed: keep watching in the corner instead of stopping. */
-    @Override
-    protected void onUserLeaveHint() {
-        super.onUserLeaveHint();
-        if (!openingOwnScreen) enterPip();
     }
 
     @Override
@@ -634,9 +630,9 @@ public class PlayerActivity extends Activity {
                 togglePause(); return true;
             case KeyEvent.KEYCODE_GUIDE: openGuide(); return true;
             case KeyEvent.KEYCODE_BACK:
-                if (banner.getAlpha() > 0.5f) { handler.removeCallbacks(hideBanner); hideBanner.run(); return true; }
-                if (infoShown) { infoShown = false; refreshInfo(); return true; }
-                finish(); return true;
+                // Back is decided on release: a short press goes back, holding it shrinks the picture into the corner.
+                if (e.getRepeatCount() == 0) { e.startTracking(); backTracking = true; backHeld = false; }
+                return true;
         }
         if (isRecording()) {
             switch (code) {
@@ -665,6 +661,11 @@ public class PlayerActivity extends Activity {
 
     @Override
     public boolean onKeyLongPress(int code, KeyEvent e) {
+        if (code == KeyEvent.KEYCODE_BACK && backTracking) {
+            backHeld = true;
+            enterPip();
+            return true;
+        }
         if (code == KeyEvent.KEYCODE_DPAD_CENTER || code == KeyEvent.KEYCODE_ENTER || code == KeyEvent.KEYCODE_NUMPAD_ENTER) {
             longPress = true;
             options();
@@ -675,6 +676,16 @@ public class PlayerActivity extends Activity {
 
     @Override
     public boolean onKeyUp(int code, KeyEvent e) {
+        if (code == KeyEvent.KEYCODE_BACK && backTracking) {
+            backTracking = false;
+            if (!backHeld && !e.isCanceled()) {
+                if (banner.getAlpha() > 0.5f) { handler.removeCallbacks(hideBanner); hideBanner.run(); }
+                else if (infoShown) { infoShown = false; refreshInfo(); }
+                else finish();
+            }
+            backHeld = false;
+            return true;
+        }
         if ((code == KeyEvent.KEYCODE_DPAD_CENTER || code == KeyEvent.KEYCODE_ENTER || code == KeyEvent.KEYCODE_NUMPAD_ENTER)
                 && listPanel.getVisibility() != View.VISIBLE) {
             if (!longPress && !e.isCanceled()) {
