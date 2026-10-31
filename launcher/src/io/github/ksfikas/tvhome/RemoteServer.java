@@ -3,6 +3,7 @@ package io.github.ksfikas.tvhome;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.media.AudioManager;
 import android.os.Handler;
@@ -25,6 +26,9 @@ import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -167,6 +171,12 @@ final class RemoteServer {
                 send(out, 401, "application/json", err(c, "pair_needed", R.string.remote_pair_needed).toString());
                 return;
             }
+            if (path.equals("/api/icon")) {
+                byte[] png = appIcon(c, String.valueOf(params.get("pkg")));
+                if (png == null) send(out, 404, "text/plain", "");
+                else sendBytes(out, "image/png", png);
+                return;
+            }
             if (path.equals("/api/wallpaper") && image) {
                 sendJson(out, saveWallpaper(c, in, len));
                 return;
@@ -210,6 +220,40 @@ final class RemoteServer {
                 + "\r\nCache-Control: no-store\r\nConnection: close\r\n\r\n").getBytes(StandardCharsets.UTF_8));
         out.write(b);
         out.flush();
+    }
+
+    private static void sendBytes(OutputStream out, String type, byte[] b) throws IOException {
+        out.write(("HTTP/1.1 200 OK\r\nContent-Type: " + type + "\r\nContent-Length: " + b.length
+                + "\r\nCache-Control: private, max-age=86400\r\nConnection: close\r\n\r\n").getBytes(StandardCharsets.UTF_8));
+        out.write(b);
+        out.flush();
+    }
+
+    /** The dock's apps in order: the user's own list, else the one shipped in config.xml (the same rule the home screen uses). */
+    private static List<String> dockApps(Context c) {
+        String s = Tvh.prefs(c).getString("dock_user", null);
+        if (s == null) return new ArrayList<>(Arrays.asList(c.getResources().getStringArray(R.array.dock_apps)));
+        List<String> out = new ArrayList<>();
+        for (String p : s.split(",")) if (!p.isEmpty()) out.add(p);
+        return out;
+    }
+
+    /** An app's launcher icon as a small PNG, or null when it is not installed. */
+    private static byte[] appIcon(Context c, String pkg) {
+        try {
+            android.graphics.drawable.Drawable d = c.getPackageManager().getApplicationIcon(pkg);
+            int s = 96;
+            android.graphics.Bitmap bm = android.graphics.Bitmap.createBitmap(s, s, android.graphics.Bitmap.Config.ARGB_8888);
+            android.graphics.Canvas cv = new android.graphics.Canvas(bm);
+            d.setBounds(0, 0, s, s);
+            d.draw(cv);
+            ByteArrayOutputStream o = new ByteArrayOutputStream();
+            bm.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, o);
+            bm.recycle();
+            return o.toByteArray();
+        } catch (PackageManager.NameNotFoundException e) {
+            return null;
+        }
     }
 
     private static void sendJson(OutputStream out, Object json) throws IOException {
@@ -338,13 +382,16 @@ final class RemoteServer {
                 return ok();
             }
             case "/api/apps": {
-                JSONArray a = new JSONArray();
+                PackageManager pm = c.getPackageManager();
+                List<AppOrder.Entry> installed = new ArrayList<>();
                 Intent i = new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LEANBACK_LAUNCHER);
-                List<ResolveInfo> apps = c.getPackageManager().queryIntentActivities(i, 0);
-                for (ResolveInfo r : apps) {
+                for (ResolveInfo r : pm.queryIntentActivities(i, 0)) {
                     if (r.activityInfo.packageName.equals(c.getPackageName())) continue;
-                    a.put(new JSONObject().put("pkg", r.activityInfo.packageName)
-                            .put("name", String.valueOf(r.loadLabel(c.getPackageManager()))));
+                    installed.add(new AppOrder.Entry(r.activityInfo.packageName, String.valueOf(r.loadLabel(pm))));
+                }
+                JSONArray a = new JSONArray();
+                for (AppOrder.Entry e : AppOrder.arrange(installed, dockApps(c), Tvh.prefs(c).getStringSet("hidden_user", Collections.emptySet()))) {
+                    a.put(new JSONObject().put("pkg", e.pkg).put("name", e.name).put("fav", e.fav));
                 }
                 return a;
             }

@@ -43,6 +43,11 @@
   .toast { position: fixed; left: 50%; bottom: 90px; transform: translateX(-50%); background: #fff; color: #111; padding: 10px 16px; border-radius: 20px; font-size: 14px; opacity: 0; transition: opacity .2s; pointer-events: none; }
   .toast.show { opacity: 1; }
   .pin input { font-size: 32px; letter-spacing: .5em; text-align: center; }
+  .apps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .app { display: flex; flex-direction: column; align-items: center; gap: 9px; padding: 14px 6px 12px; font-size: 12px; line-height: 1.25; min-width: 0; }
+  .app img { width: 48px; height: 48px; border-radius: 12px; background: var(--card2); }
+  .app span { width: 100%; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--dim); }
+  .app:active span { color: #111; }
   svg.i { width: 1.2em; height: 1.2em; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; vertical-align: -.22em; margin-right: .45em; flex: none; }
   button[data-ic]:empty svg.i, .big svg.i { margin: 0; }
   .big svg.i { width: 1.35em; height: 1.35em; }
@@ -139,7 +144,10 @@
 <section id="tab-apps" class="hide">
   <h1 data-i18n="apps_title">Apps</h1>
   <div class="sub" data-i18n="apps_sub">Opens on the TV</div>
-  <div class="grid g2" id="apps"></div>
+  <div class="label" id="favlabel" data-i18n="apps_fav">Favourites</div>
+  <div class="apps" id="favs"></div>
+  <div class="label" id="alllabel" data-i18n="apps_all">All apps</div>
+  <div class="apps" id="apps"></div>
 </section>
 
 <nav id="nav" class="hide">
@@ -173,7 +181,7 @@ const DICT = {
     lbl_tv: 'TV', home: 'Home', stop_watching: 'Stop watching', turn_on: 'Turn on', turn_off: 'Turn off',
     channels_title: 'Channels', channels_sub: 'Tap to watch on the TV',
     guide_title: 'Guide', search_ph: 'Search, or browse what\'s on below',
-    apps_title: 'Apps', apps_sub: 'Opens on the TV',
+    apps_title: 'Apps', apps_sub: 'Opens on the TV', apps_fav: 'Favourites', apps_all: 'All apps',
     nav_remote: 'Remote', nav_channels: 'Channels', nav_guide: 'Guide', nav_apps: 'Apps',
     confirm_off: 'Turn the TV off?', turning_off: 'Turning off', turning_on: 'Turning on',
     standby_in: m => 'Standby in ' + m + ' min', sleep_cancelled: 'Sleep timer off',
@@ -230,7 +238,7 @@ const DICT = {
     lbl_tv: 'TV', home: 'Αρχική', stop_watching: 'Διακοπή προβολής', turn_on: 'Ενεργοποίηση', turn_off: 'Απενεργοποίηση',
     channels_title: 'Κανάλια', channels_sub: 'Πατήστε για προβολή στην τηλεόραση',
     guide_title: 'Οδηγός', search_ph: 'Αναζήτηση ή περιήγηση παρακάτω',
-    apps_title: 'Εφαρμογές', apps_sub: 'Ανοίγει στην τηλεόραση',
+    apps_title: 'Εφαρμογές', apps_sub: 'Ανοίγει στην τηλεόραση', apps_fav: 'Αγαπημένες', apps_all: 'Όλες οι εφαρμογές',
     nav_remote: 'Έλεγχος', nav_channels: 'Κανάλια', nav_guide: 'Οδηγός', nav_apps: 'Εφαρμογές',
     confirm_off: 'Απενεργοποίηση της τηλεόρασης;', turning_off: 'Απενεργοποίηση', turning_on: 'Ενεργοποίηση',
     standby_in: m => 'Αναμονή σε ' + m + ' λεπτά', sleep_cancelled: 'Ο χρονοδιακόπτης ύπνου απενεργοποιήθηκε',
@@ -489,11 +497,34 @@ function renderStatus(s) {
   return h;
 }
 
+// App icons come from the TV one at a time as they scroll into view, and are kept for the visit.
+const iconCache = new Map();
+const iconSeen = 'IntersectionObserver' in window ? new IntersectionObserver(es => es.forEach(e => {
+  if (e.isIntersecting) { iconSeen.unobserve(e.target); loadIcon(e.target); }
+}), {rootMargin: '200px'}) : null;
+async function loadIcon(img) {
+  const pkg = img.dataset.pkg;
+  try {
+    if (!iconCache.has(pkg)) {
+      const r = await fetch('/api/icon?pkg=' + encodeURIComponent(pkg), {headers: {'X-Token': token || ''}});
+      if (!r.ok) return;
+      iconCache.set(pkg, URL.createObjectURL(await r.blob()));
+    }
+    img.src = iconCache.get(pkg);
+  } catch (e) { }
+}
 async function apps() {
   const list = await call('apps');
-  list.sort((a, b) => a.name.localeCompare(b.name));
-  $('apps').innerHTML = list.map(a => `<button data-pkg="${esc(a.pkg)}">${esc(a.name)}</button>`).join('');
-  $('apps').querySelectorAll('button').forEach(b => b.onclick = () => call('open', {pkg: b.dataset.pkg}).then(() => toast(t('opening_on_tv'))));
+  const tile = a => `<button class="app" data-pkg="${esc(a.pkg)}"><img alt="" width="48" height="48" data-pkg="${esc(a.pkg)}"><span>${esc(a.name)}</span></button>`;
+  const favs = list.filter(a => a.fav), rest = list.filter(a => !a.fav);
+  $('favs').innerHTML = favs.map(tile).join('');
+  $('apps').innerHTML = rest.map(tile).join('');
+  $('favlabel').classList.toggle('hide', !favs.length);
+  $('alllabel').classList.toggle('hide', !favs.length || !rest.length);
+  for (const box of [$('favs'), $('apps')]) {
+    box.querySelectorAll('button').forEach(b => b.onclick = () => call('open', {pkg: b.dataset.pkg}).then(() => toast(t('opening_on_tv'))));
+    box.querySelectorAll('img').forEach(img => iconSeen ? iconSeen.observe(img) : loadIcon(img));
+  }
 }
 
 let searchTimer;
