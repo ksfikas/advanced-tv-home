@@ -389,6 +389,21 @@ public class PlayerActivity extends Activity {
     private ExoPlayer buildPlayer() {
         // Decoded audio also flows past the radio spectrum tap (a no-op unless the radio screen is up).
         DefaultRenderersFactory renderers = new DefaultRenderersFactory(this) {
+            // Broadcast H.264 often does not state its frame rate; the Amlogic decoder then guesses frame durations
+            // from timestamps and they come out uneven. Say 25 per second (what Greek HD uses).
+            @Override
+            protected void buildVideoRenderers(Context c, int ext, androidx.media3.exoplayer.mediacodec.MediaCodecSelector sel,
+                    boolean fallback, Handler h, androidx.media3.exoplayer.video.VideoRendererEventListener l, long join, ArrayList<androidx.media3.exoplayer.Renderer> out) {
+                out.add(new androidx.media3.exoplayer.video.MediaCodecVideoRenderer(c, sel, join, fallback, h, l, 50) {
+                    @Override
+                    protected android.media.MediaFormat getMediaFormat(Format f, String mime, CodecMaxValues max, float rate, boolean w, int tunnel) {
+                        android.media.MediaFormat mf = super.getMediaFormat(f, mime, max, rate, w, tunnel);
+                        if (f.frameRate == Format.NO_VALUE) mf.setFloat(android.media.MediaFormat.KEY_FRAME_RATE, 25f);
+                        return mf;
+                    }
+                });
+            }
+
             @Override
             protected androidx.media3.exoplayer.audio.AudioSink buildAudioSink(Context c, boolean floatOut, boolean trackParams) {
                 return new androidx.media3.exoplayer.audio.DefaultAudioSink.Builder(c)
@@ -426,6 +441,12 @@ public class PlayerActivity extends Activity {
             }
             @Override public void onPlaybackStateChanged(androidx.media3.exoplayer.analytics.AnalyticsListener.EventTime t, int s) {
                 android.util.Log.i("tvh-play", "state " + s + " buffered " + t.currentPlaybackPositionMs);
+            }
+            @Override public void onVideoDecoderInitialized(androidx.media3.exoplayer.analytics.AnalyticsListener.EventTime t, String name, long at, long ms) {
+                android.util.Log.i("tvh-play", "video decoder " + name);
+            }
+            @Override public void onVideoInputFormatChanged(androidx.media3.exoplayer.analytics.AnalyticsListener.EventTime t, androidx.media3.common.Format f, androidx.media3.exoplayer.DecoderReuseEvaluation r) {
+                android.util.Log.i("tvh-play", "video " + f.sampleMimeType + " " + f.width + "x" + f.height + " fps " + f.frameRate + " codecs " + f.codecs + " interlace-ish par " + f.pixelWidthHeightRatio);
             }
             @Override public void onAudioUnderrun(androidx.media3.exoplayer.analytics.AnalyticsListener.EventTime t, int size, long ms, long elapsed) {
                 android.util.Log.i("tvh-play", "audio underrun " + ms + " ms");
