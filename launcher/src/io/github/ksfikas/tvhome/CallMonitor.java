@@ -95,7 +95,7 @@ final class CallMonitor {
                     lastAt = now;
                     String who = r.number.isEmpty() ? c.getString(R.string.calls_unknown) : r.number;
                     String name = r.number.isEmpty() ? null : Fritz.nameFor(c, r.number);
-                    Notice.show(c, c.getString(R.string.calls_title), name == null ? who : name + " · " + who, 20);
+                    Notice.show(c, c.getString(R.string.calls_title), name == null ? who : name + " · " + who, 20, R.drawable.ic_notice_call);
                 }
             } catch (IOException ignored) {
                 // router off, call monitor not switched on, or the connection dropped: try again later

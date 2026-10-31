@@ -12,6 +12,8 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -72,8 +74,13 @@ final class Notice {
         });
     }
 
-    /** Shows the message for the given seconds. Call from any thread. */
+    /** Shows the message with a bell for the given seconds. Call from any thread. */
     static void show(Context c, String title, String text, int seconds) {
+        show(c, title, text, seconds, R.drawable.ic_notice_bell);
+    }
+
+    /** Shows the message with the given small white icon. Call from any thread. */
+    static void show(Context c, String title, String text, int seconds, int icon) {
         String msg = line(title, text);
         if (msg.isEmpty()) return;
         Context app = c.getApplicationContext();
@@ -84,11 +91,21 @@ final class Notice {
                 return;
             }
             clear();
-            TextView v = new TextView(a);
-            v.setText(msg);
-            v.setTextColor(Color.WHITE);
-            v.setTextSize(22);
-            v.setMaxLines(3);
+            LinearLayout v = new LinearLayout(a);
+            v.setOrientation(LinearLayout.HORIZONTAL);
+            v.setGravity(Gravity.CENTER_VERTICAL);
+            ImageView pic = new ImageView(a);
+            pic.setImageResource(icon);
+            v.addView(pic, new LinearLayout.LayoutParams(Ui.dp(a, 30), Ui.dp(a, 30)));
+            TextView t = new TextView(a);
+            t.setText(msg);
+            t.setTextColor(Color.WHITE);
+            t.setTextSize(22);
+            t.setMaxLines(3);
+            t.setMaxWidth(Math.min(Ui.dp(a, 460), a.getResources().getDisplayMetrics().widthPixels * 2 / 3));
+            LinearLayout.LayoutParams tp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            tp.setMarginStart(Ui.dp(a, 14));
+            v.addView(t, tp);
             int pad = Ui.dp(a, 18);
             v.setPadding(pad * 3 / 2, pad, pad * 3 / 2, pad);
             GradientDrawable bg = new GradientDrawable();
@@ -99,7 +116,6 @@ final class Notice {
             FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,
                     Gravity.TOP | Gravity.END);
             lp.setMargins(0, Ui.dp(a, 32), Ui.dp(a, 40), 0);
-            lp.width = Math.min(Ui.dp(a, 520), a.getResources().getDisplayMetrics().widthPixels * 2 / 3);
             a.addContentView(v, lp);
             shown = v;
             ui().postDelayed(Notice::clear, seconds * 1000L);
