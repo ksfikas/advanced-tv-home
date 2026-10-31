@@ -46,6 +46,8 @@
     <string name="player_sleep_off">Sleep timer: Off</string>
     <string name="player_stream_info">Stream info</string>
     <string name="player_hide_stream_info">Hide stream info</string>
+    <string name="player_tunnel_on">Smooth video mode: try (restarts)</string>
+    <string name="player_tunnel_off">Smooth video mode: turn off (restarts)</string>
 
     <!-- Series recording confirmation -->
     <string name="player_series_confirm">Records “%1$s” every time it airs on %2$s, starting now if it\'s on. Manage series under Recordings.</string>

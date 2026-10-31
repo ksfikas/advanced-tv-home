@@ -46,6 +46,8 @@
     <string name="player_sleep_off">Χρονοδιακόπτης ύπνου: Ανενεργός</string>
     <string name="player_stream_info">Πληροφορίες ροής</string>
     <string name="player_hide_stream_info">Απόκρυψη πληροφοριών ροής</string>
+    <string name="player_tunnel_on">Ομαλή εικόνα: δοκιμή (επανεκκίνηση)</string>
+    <string name="player_tunnel_off">Ομαλή εικόνα: απενεργοποίηση (επανεκκίνηση)</string>
 
     <!-- Επιβεβαίωση εγγραφής σειράς -->
     <string name="player_series_confirm">Εγγράφει το «%1$s» κάθε φορά που προβάλλεται στο κανάλι %2$s, ξεκινώντας τώρα αν παίζει. Διαχειριστείτε τις σειρές στις Εγγραφές.</string>

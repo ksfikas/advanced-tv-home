@@ -752,6 +752,13 @@ public class PlayerActivity extends Activity {
         if (ownPlayer) {
             labels.add(infoShown ? getString(R.string.player_hide_stream_info) : getString(R.string.player_stream_info));
             actions.add(() -> { infoShown = !infoShown; refreshInfo(); });
+            boolean tun = Tvh.prefs(this).getBoolean("tunneling", false);
+            labels.add(getString(tun ? R.string.player_tunnel_off : R.string.player_tunnel_on));
+            actions.add(() -> { // the video chip times the frames itself: smoother on some boxes, worse on others
+                Tvh.prefs(this).edit().putBoolean("tunneling", !tun).apply();
+                releasePlayer();
+                startPlayback();
+            });
         }
         Ui.menu(this, isRecording() ? recordingTitle : list.get(index).name, labels.toArray(new String[0]),
                 i -> actions.get(i).run());
