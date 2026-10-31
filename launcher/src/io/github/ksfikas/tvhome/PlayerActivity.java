@@ -406,7 +406,7 @@ public class PlayerActivity extends Activity {
                 .setTrackTypeDisabled(C.TRACK_TYPE_TEXT, textLang == null));
         // Live TV: start fast, keep a modest buffer (memory is tight on 2 GB boxes).
         DefaultLoadControl load = new DefaultLoadControl.Builder()
-                .setBufferDurationsMs(3000, 12000, 250, 1000) // 250 ms is enough to start: a live stream only arrives in real time
+                .setBufferDurationsMs(3000, 12000, 250, 2500) // 250 ms is enough to start: a live stream only arrives in real time; after a stall wait for 2.5 s so one network hiccup is not followed by another
                 .build();
         ExoPlayer p = new ExoPlayer.Builder(this, renderers)
                 .setTrackSelector(tracks)
