@@ -5,6 +5,8 @@ All notable changes to Advanced TV Home. Newest first. Releases are tagged `vX.Y
 
 ## Unreleased
 
+- **Live TV picture**: HD channels no longer stutter or freeze on boxes with an Amlogic video decoder. The player was splitting interlaced frames into fields and not telling the decoder the frame rate (broadcast H.264 often omits it), so the decoder dropped frames the player could not see. Also: the guide opens over the playing picture instead of stopping it (choosing the channel already playing changes nothing), a slow channel start gets 15 s before a retry, and after a stall playback waits for 2.5 s of video. The player menu has "Smooth video mode" (off by default; it was worse on the test box).
+
 - **Memory**: Box status → "Tidy cache and free memory" now also closes other apps' idle background processes (Android only lets a launcher close ones it already counts as cached, so a recently used app such as Netflix may stay). Inputs → "Free memory for live TV" (off by default) does the same when live TV starts and memory is low. The home screen also lets go of its big pictures when another app needs memory.
 
 - **Voice commands** in Search (hold the mic): "watch ERT 1", "what is on MEGA", "record the news", and the Greek equivalents ("δες ΕΡΤ ένα", "τι παίζει στο Mega", "κατάγραψε τα νέα"). Anything else is a normal search.
