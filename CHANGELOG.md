@@ -3,7 +3,7 @@
 All notable changes to Advanced TV Home. Newest first. Releases are tagged `vX.Y.Z` and published on
 [GitHub](https://github.com/ksfikas/advanced-tv-home/releases).
 
-## Unreleased
+## 3.0.4
 
 - **Incoming calls (Fritz!Box)**: Inputs → "Show incoming calls" shows a banner with the caller over live TV and the home screen (a toast over other apps). Switch the router's call monitor on once by dialling `#96*5*` on a phone connected to it. Inputs → "Fritz!Box login" adds names from the Fritz!Box phonebook; the login stays on the box and is not part of a settings backup. The router is found through the network's gateway, so the name fritz.box does not need to resolve.
 
