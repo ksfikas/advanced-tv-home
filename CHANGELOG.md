@@ -5,6 +5,8 @@ All notable changes to Advanced TV Home. Newest first. Releases are tagged `vX.Y
 
 ## 3.0.4
 
+- **No more crash when the small player window closes**: on Android 14 the system could send a picture-in-picture message to a window that had just gone (for example while the voice assistant opened), which stopped the whole app, home screen included. That one system error is now ignored; any other error still shows as before.
+
 - **Incoming calls (Fritz!Box)**: Inputs → "Show incoming calls" shows a banner with the caller over live TV and the home screen (a toast over other apps). Switch the router's call monitor on once by dialling `#96*5*` on a phone connected to it. Inputs → "Fritz!Box login" adds names from the Fritz!Box phonebook; the login stays on the box and is not part of a settings backup. The router is found through the network's gateway, so the name fritz.box does not need to resolve.
 
 - **Phone remote apps**: the Apps tab shows each app's icon, with the dock's favourites on top (as on the TV) and the other apps below; apps hidden on the TV stay hidden. Icons load as they scroll into view.

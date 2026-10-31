@@ -246,7 +246,7 @@ public class PlayerActivity extends Activity {
 
     /** Shrink the picture into a corner window; the launcher (or any app) shows behind it. */
     private void enterPip() {
-        if (!canPip()) return;
+        if (isFinishing() || isDestroyed() || !canPip()) return;
         closeList();
         try {
             enterPictureInPictureMode(new PictureInPictureParams.Builder().setAspectRatio(new Rational(16, 9)).build());
