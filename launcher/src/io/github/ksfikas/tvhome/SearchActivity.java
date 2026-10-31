@@ -129,10 +129,13 @@ public class SearchActivity extends Activity {
         mic.requestFocus();
         String said = getIntent().getStringExtra(EXTRA_SAID);
         if (said != null) handleSaid(java.util.Collections.singletonList(said));
+        else if (getIntent().getBooleanExtra(EXTRA_LISTEN, false)) listen();
     }
 
     /** Words to act on at once (from the assistant): handled as if they had just been spoken here. */
     static final String EXTRA_SAID = "said";
+    /** Opened from a voice shortcut: start listening at once (typing stays possible). */
+    static final String EXTRA_LISTEN = "listen";
 
     private static final int VOICE = 1, MIC = 2;
     private android.speech.SpeechRecognizer recognizer;

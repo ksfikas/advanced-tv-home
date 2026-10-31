@@ -1000,7 +1000,7 @@ public class MainActivity extends Activity {
                 labels.add(new String[]{"☰", getString(R.string.main_guide)});
                 clicks.add(v -> launch(new Intent(this, GuideActivity.class)));
                 labels.add(new String[]{"⌕", getString(R.string.main_search)});
-                clicks.add(v -> launch(new Intent(this, SearchActivity.class)));
+                clicks.add(v -> launch(new Intent(this, SearchActivity.class).putExtra(SearchActivity.EXTRA_LISTEN, true)));
                 labels.add(new String[]{"●", getString(R.string.main_recordings)});
                 clicks.add(v -> launch(new Intent(this, RecordingsActivity.class)));
             }
@@ -1937,7 +1937,7 @@ public class MainActivity extends Activity {
         LinearLayout r4 = new LinearLayout(this);
         r4.setGravity(Gravity.CENTER_VERTICAL);
         Object[][] round = {
-                {"🎙", getString(R.string.main_voice_search), (Runnable) () -> launch(new Intent(this, SearchActivity.class))},
+                {"🎙", getString(R.string.main_voice_search), (Runnable) () -> launch(new Intent(this, SearchActivity.class).putExtra(SearchActivity.EXTRA_LISTEN, true))},
                 {"−", getString(R.string.main_volume_down), (Runnable) () -> volume(android.media.AudioManager.ADJUST_LOWER)},
                 {"+", getString(R.string.main_volume_up), (Runnable) () -> volume(android.media.AudioManager.ADJUST_RAISE)},
                 {"ⓘ", getString(R.string.main_box_status), (Runnable) () -> BoxHealth.show(this)},
