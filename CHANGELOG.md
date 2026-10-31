@@ -5,6 +5,8 @@ All notable changes to Advanced TV Home. Newest first. Releases are tagged `vX.Y
 
 ## 3.0.5
 
+- **Assistant hand-over (experimental)**: the app now answers "play MEGA on Advanced TV Home" and "search ERT 1 on Advanced TV Home" when Google's assistant passes them on. Whether the assistant does that on a given TV is up to Google.
+
 - **Voice in Search works with commands**: the mic now listens inside the app (asks for the microphone once) and gets the words back, so "watch MEGA", "what is on ERT 2" and "record the news" reach the app. Before, Google TV's own voice screen tried to carry them out itself and failed with "problem processing your request".
 
 - **Corner window only on request**: hold Back while watching to shrink the picture into the corner (also in the options menu). A plain Home press now just leaves live TV, and opening the voice assistant no longer shrinks the picture and shows the home screen behind it.
