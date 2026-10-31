@@ -69,6 +69,9 @@
     <string name="voice_record">Record</string>
     <string name="voice_recorded">Recording set</string>
     <string name="search_voice_missing">Voice input isn\'t available on this box; type instead</string>
+    <string name="voice_listening">Listening…</string>
+    <string name="voice_nothing_heard">Did not catch that. Try again</string>
+    <string name="voice_error">Voice input is not working right now; type instead</string>
     <string name="search_searching">Searching…</string>
     <string name="search_channels">Channels</string>
     <string name="search_programmes">Programmes</string>

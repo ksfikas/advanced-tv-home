@@ -69,6 +69,9 @@
     <string name="voice_record">Εγγραφή</string>
     <string name="voice_recorded">Η εγγραφή ορίστηκε</string>
     <string name="search_voice_missing">Η φωνητική εισαγωγή δεν είναι διαθέσιμη σε αυτή τη συσκευή· πληκτρολογήστε</string>
+    <string name="voice_listening">Ακούω…</string>
+    <string name="voice_nothing_heard">Δεν κατάλαβα. Δοκιμάστε ξανά</string>
+    <string name="voice_error">Η φωνητική εισαγωγή δεν λειτουργεί τώρα· πληκτρολογήστε</string>
     <string name="search_searching">Αναζήτηση…</string>
     <string name="search_channels">Κανάλια</string>
     <string name="search_programmes">Εκπομπές</string>

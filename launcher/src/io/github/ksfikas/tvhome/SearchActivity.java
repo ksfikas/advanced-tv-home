@@ -129,9 +129,57 @@ public class SearchActivity extends Activity {
         mic.requestFocus();
     }
 
-    private static final int VOICE = 1;
+    private static final int VOICE = 1, MIC = 2;
+    private android.speech.SpeechRecognizer recognizer;
 
+    /**
+     * Listens in this screen with the box's speech-to-text and gets the words back. (Google TV's voice screen would
+     * try to carry out "watch MEGA" itself, fail, and never hand the words over.) Asks for the microphone once;
+     * without it, or without a recogniser, the old voice screen is used.
+     */
     private void listen() {
+        if (!android.speech.SpeechRecognizer.isRecognitionAvailable(this)) { listenViaAssistant(); return; }
+        if (checkSelfPermission(android.Manifest.permission.RECORD_AUDIO) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{android.Manifest.permission.RECORD_AUDIO}, MIC);
+            return;
+        }
+        listenHere();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int code, String[] perms, int[] granted) {
+        super.onRequestPermissionsResult(code, perms, granted);
+        if (code != MIC) return;
+        if (granted.length > 0 && granted[0] == android.content.pm.PackageManager.PERMISSION_GRANTED) listenHere();
+        else listenViaAssistant();
+    }
+
+    private void listenHere() {
+        if (recognizer != null) recognizer.destroy();
+        recognizer = android.speech.SpeechRecognizer.createSpeechRecognizer(this);
+        recognizer.setRecognitionListener(new android.speech.RecognitionListener() {
+            @Override public void onReadyForSpeech(android.os.Bundle p) { message.setText(R.string.voice_listening); }
+            @Override public void onError(int error) {
+                if (error == android.speech.SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS) { listenViaAssistant(); return; }
+                message.setText(error == android.speech.SpeechRecognizer.ERROR_NO_MATCH || error == android.speech.SpeechRecognizer.ERROR_SPEECH_TIMEOUT
+                        ? R.string.voice_nothing_heard : R.string.voice_error);
+            }
+            @Override public void onResults(android.os.Bundle b) {
+                handleSaid(b.getStringArrayList(android.speech.SpeechRecognizer.RESULTS_RECOGNITION));
+            }
+            @Override public void onBeginningOfSpeech() { }
+            @Override public void onRmsChanged(float v) { }
+            @Override public void onBufferReceived(byte[] buf) { }
+            @Override public void onEndOfSpeech() { }
+            @Override public void onPartialResults(android.os.Bundle b) { }
+            @Override public void onEvent(int type, android.os.Bundle b) { }
+        });
+        recognizer.startListening(new android.content.Intent(android.speech.RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+                .putExtra(android.speech.RecognizerIntent.EXTRA_LANGUAGE_MODEL, android.speech.RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+                .putExtra(android.speech.RecognizerIntent.EXTRA_MAX_RESULTS, 3));
+    }
+
+    private void listenViaAssistant() {
         android.content.Intent i = new android.content.Intent(android.speech.RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
                 .putExtra(android.speech.RecognizerIntent.EXTRA_LANGUAGE_MODEL, android.speech.RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
                 .putExtra(android.speech.RecognizerIntent.EXTRA_PROMPT, getString(R.string.search_say_title));
@@ -152,7 +200,10 @@ public class SearchActivity extends Activity {
     protected void onActivityResult(int request, int result, android.content.Intent data) {
         super.onActivityResult(request, result, data);
         if (request != VOICE || result != RESULT_OK || data == null) return;
-        java.util.ArrayList<String> said = data.getStringArrayListExtra(android.speech.RecognizerIntent.EXTRA_RESULTS);
+        handleSaid(data.getStringArrayListExtra(android.speech.RecognizerIntent.EXTRA_RESULTS));
+    }
+
+    private void handleSaid(java.util.List<String> said) {
         if (said == null || said.isEmpty()) return;
         VoiceCommand cmd = VoiceCommand.parse(said.get(0));
         if (cmd.type != VoiceCommand.SEARCH) { runVoice(cmd, said.get(0)); return; }
@@ -250,6 +301,7 @@ public class SearchActivity extends Activity {
     @Override
     protected void onDestroy() {
         handler.removeCallbacksAndMessages(null);
+        if (recognizer != null) { recognizer.destroy(); recognizer = null; }
         super.onDestroy();
     }
 

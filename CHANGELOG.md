@@ -5,6 +5,8 @@ All notable changes to Advanced TV Home. Newest first. Releases are tagged `vX.Y
 
 ## 3.0.5
 
+- **Voice in Search works with commands**: the mic now listens inside the app (asks for the microphone once) and gets the words back, so "watch MEGA", "what is on ERT 2" and "record the news" reach the app. Before, Google TV's own voice screen tried to carry them out itself and failed with "problem processing your request".
+
 - **Corner window only on request**: hold Back while watching to shrink the picture into the corner (also in the options menu). A plain Home press now just leaves live TV, and opening the voice assistant no longer shrinks the picture and shows the home screen behind it.
 
 - **No more crash when the small player window closes**: on Android 14 the system could send a picture-in-picture message to a window that had just gone (for example while the voice assistant opened), which stopped the whole app, home screen included. That one system error is now ignored; any other error still shows as before.
