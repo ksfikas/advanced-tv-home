@@ -190,6 +190,12 @@ public class PlayerActivity extends Activity {
         }
         String uuid = i.getStringExtra(EXTRA_CHANNEL);
         if (uuid == null) uuid = Tvh.prefs(this).getString("last_channel", null);
+        // The same channel again (picked in the guide over the picture): nothing to restart.
+        if (uuid != null && uuid.equals(playing) && player != null && visible && !isTvInput()
+                && (player.getPlaybackState() == Player.STATE_READY || player.getPlaybackState() == Player.STATE_BUFFERING)) {
+            showBanner();
+            return;
+        }
         String target = uuid;
         if (!Tvh.channels.isEmpty()) { useChannels(target); return; }
         // Started cold (e.g. at boot): fetch the channel list first.
@@ -415,6 +421,17 @@ public class PlayerActivity extends Activity {
         p.setAudioAttributes(new AudioAttributes.Builder()
                 .setUsage(C.USAGE_MEDIA).setContentType(C.AUDIO_CONTENT_TYPE_MOVIE).build(), true);
         p.setVideoSurfaceView(surface);
+        p.addAnalyticsListener(new androidx.media3.exoplayer.analytics.AnalyticsListener() {
+            @Override public void onDroppedVideoFrames(androidx.media3.exoplayer.analytics.AnalyticsListener.EventTime t, int n, long ms) {
+                android.util.Log.i("tvh-play", "dropped " + n + " frames in " + ms + " ms");
+            }
+            @Override public void onPlaybackStateChanged(androidx.media3.exoplayer.analytics.AnalyticsListener.EventTime t, int s) {
+                android.util.Log.i("tvh-play", "state " + s + " buffered " + t.currentPlaybackPositionMs);
+            }
+            @Override public void onAudioUnderrun(androidx.media3.exoplayer.analytics.AnalyticsListener.EventTime t, int size, long ms, long elapsed) {
+                android.util.Log.i("tvh-play", "audio underrun " + ms + " ms");
+            }
+        });
         p.addListener(new Player.Listener() {
             @Override public void onPlaybackStateChanged(int state) {
                 handler.removeCallbacks(stall);
@@ -750,7 +767,7 @@ public class PlayerActivity extends Activity {
     }
 
     private void openGuide() {
-        openOwnScreen(new Intent(this, GuideActivity.class));
+        openOwnScreen(new Intent(this, GuideActivity.class).putExtra(GuideActivity.EXTRA_OVER, true));
     }
 
     /** Shared by the player, guide and search: confirm, then set up a series recording. */

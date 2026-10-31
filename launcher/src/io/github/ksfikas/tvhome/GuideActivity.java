@@ -34,6 +34,9 @@ import java.util.Set;
  * every episode, remind me). Long-press OK for the menu on any programme. Menu opens search.
  */
 public class GuideActivity extends Activity {
+    /** Set when opened over a playing picture: the guide is then see-through so the channel keeps playing behind it. */
+    static final String EXTRA_OVER = "over_player";
+    private boolean over;
 
     @Override
     protected void attachBaseContext(android.content.Context base) {
@@ -53,12 +56,13 @@ public class GuideActivity extends Activity {
     @Override
     protected void onCreate(Bundle b) {
         super.onCreate(b);
+        over = getIntent().getBooleanExtra(EXTRA_OVER, false);
         getWindow().getDecorView().setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
         tvh = Tvh.get(this);
         if (tvh == null) { finish(); return; }
-        view = new GuideView(this);
+        view = new GuideView(this, over);
         setContentView(view);
         long now = System.currentTimeMillis() / 1000;
         view.viewStart = now - now % STEP;
@@ -272,9 +276,9 @@ public class GuideActivity extends Activity {
         private final TextPaint text = new TextPaint(Paint.ANTI_ALIAS_FLAG);
         private final RectF r = new RectF();
 
-        GuideView(Context c) {
+        GuideView(Context c, boolean over) {
             super(c);
-            setBackgroundColor(0xFF0E0E10);
+            setBackgroundColor(over ? 0xE80E0E10 : 0xFF0E0E10);
             setFocusable(true);
         }
 
