@@ -842,6 +842,7 @@ public class MainActivity extends Activity {
             android.widget.Toast.makeText(this, CallMonitor.enabled(this) ? getString(R.string.main_calls_hint)
                     : getString(R.string.main_calls_menu, getString(R.string.main_state_off)), android.widget.Toast.LENGTH_LONG).show();
         }));
+        rows.add(inputRow(getString(R.string.main_fritz_menu), this::showFritzSetup));
         rows.add(inputRow(getString(R.string.main_phone_remote_menu), this::showRemoteSetup));
         if (!Tvh.prefs(this).getStringSet("hidden_user", Collections.emptySet()).isEmpty()) {
             rows.add(inputRow(getString(R.string.main_show_hidden_apps),() -> {
@@ -2166,6 +2167,46 @@ public class MainActivity extends Activity {
                     if (err != null) { result.setTextColor(0xFFFF8A80); result.setText(err); return; }
                     dialog.dismiss();
                     updateWeather();
+                });
+            });
+        }));
+        Ui.frost(dialog).show();
+    }
+
+    /** Fritz!Box user and password, checked by reading the phonebook; used to show a caller's name. */
+    private void showFritzSetup() {
+        LinearLayout form = new LinearLayout(this);
+        form.setOrientation(LinearLayout.VERTICAL);
+        form.setPadding(dp(24), dp(8), dp(24), 0);
+        EditText user = field(form, getString(R.string.main_f_fritz_user), Fritz.user(this), InputType.TYPE_CLASS_TEXT);
+        EditText pass = field(form, getString(R.string.main_f_fritz_pass), "", InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        TextView result = text(13, "sans-serif", 0xB3FFFFFF);
+        result.setText(getString(R.string.main_fritz_help));
+        form.addView(result, llp(-1, -2, 0, dp(6), 0, 0));
+        AlertDialog dialog = new AlertDialog.Builder(this, R.style.Glass)
+                .setTitle(getString(R.string.main_fritz_title))
+                .setView(form)
+                .setPositiveButton(getString(R.string.main_save), null)
+                .setNegativeButton(getString(R.string.main_cancel), null)
+                .create();
+        dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            Fritz.saveLogin(this, user.getText().toString(), pass.getText().toString());
+            result.setTextColor(0xB3FFFFFF);
+            result.setText(getString(R.string.main_looking_up));
+            Tvh.IO.execute(() -> {
+                String msg;
+                boolean ok = false;
+                try {
+                    msg = getString(R.string.fritz_found, Fritz.load(this).size());
+                    ok = true;
+                } catch (java.io.IOException | org.xmlpull.v1.XmlPullParserException e) {
+                    msg = e.getMessage();
+                }
+                String shown = msg;
+                boolean good = ok;
+                runOnUiThread(() -> {
+                    result.setTextColor(good ? 0xFFA5D6A7 : 0xFFFF8A80);
+                    result.setText(shown);
                 });
             });
         }));

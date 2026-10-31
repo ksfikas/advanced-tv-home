@@ -38,6 +38,16 @@
     <string name="main_calls_hint">On. Dial #96*5* once on a phone connected to the Fritz!Box to switch its call monitor on.</string>
     <string name="calls_title">Incoming call</string>
     <string name="calls_unknown">Unknown number</string>
+    <string name="main_fritz_menu">Fritz!Box login (names for calls)…</string>
+    <string name="main_fritz_title">Fritz!Box login</string>
+    <string name="main_f_fritz_user">User name</string>
+    <string name="main_f_fritz_pass">Password</string>
+    <string name="main_fritz_help">Use a Fritz!Box user that may use phone features (System → FRITZ!Box Users).</string>
+    <string name="fritz_found">%1$d contacts found</string>
+    <string name="fritz_err_login">The Fritz!Box refused this login</string>
+    <string name="fritz_err_http">The Fritz!Box answered with error %1$d</string>
+    <string name="fritz_err_unreachable">Cannot reach the Fritz!Box at %1$s</string>
+    <string name="fritz_err_none">No phonebook found on the Fritz!Box</string>
     <string name="main_phone_remote_menu">Phone remote…</string>
     <string name="main_show_hidden_apps">Show hidden apps</string>
     <string name="main_all_sources">All sources…</string>

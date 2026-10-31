@@ -38,6 +38,16 @@
     <string name="main_calls_hint">Ενεργό. Πληκτρολογήστε μία φορά #96*5* σε τηλέφωνο συνδεδεμένο στο Fritz!Box για να ενεργοποιηθεί η παρακολούθηση κλήσεων.</string>
     <string name="calls_title">Εισερχόμενη κλήση</string>
     <string name="calls_unknown">Άγνωστος αριθμός</string>
+    <string name="main_fritz_menu">Σύνδεση Fritz!Box (ονόματα κλήσεων)…</string>
+    <string name="main_fritz_title">Σύνδεση Fritz!Box</string>
+    <string name="main_f_fritz_user">Όνομα χρήστη</string>
+    <string name="main_f_fritz_pass">Κωδικός</string>
+    <string name="main_fritz_help">Χρησιμοποιήστε χρήστη Fritz!Box με δικαίωμα στις λειτουργίες τηλεφώνου (Σύστημα → Χρήστες FRITZ!Box).</string>
+    <string name="fritz_found">Βρέθηκαν %1$d επαφές</string>
+    <string name="fritz_err_login">Το Fritz!Box απέρριψε αυτή τη σύνδεση</string>
+    <string name="fritz_err_http">Το Fritz!Box απάντησε με σφάλμα %1$d</string>
+    <string name="fritz_err_unreachable">Δεν είναι δυνατή η σύνδεση με το Fritz!Box στο %1$s</string>
+    <string name="fritz_err_none">Δεν βρέθηκε τηλεφωνικός κατάλογος στο Fritz!Box</string>
     <string name="main_phone_remote_menu">Τηλεχειριστήριο κινητού…</string>
     <string name="main_show_hidden_apps">Εμφάνιση κρυφών εφαρμογών</string>
     <string name="main_all_sources">Όλες οι πηγές…</string>

@@ -18,7 +18,7 @@ final class CallMonitor {
     private CallMonitor() { }
 
     static final int PORT = 1012;
-    private static final String ENABLED = "fritz_calls", HOST = "fritz_host", DEFAULT_HOST = "fritz.box";
+    private static final String ENABLED = "fritz_calls";
 
     /** An incoming call: the router's id for it, the caller's number (empty when hidden) and the line called. */
     static final class Ring {
@@ -69,18 +69,20 @@ final class CallMonitor {
         String lastId = null;
         while (wanted) {
             try (Socket s = new Socket()) {
-                s.connect(new InetSocketAddress(Tvh.prefs(c).getString(HOST, DEFAULT_HOST), PORT), 5000);
+                s.connect(new InetSocketAddress(Fritz.host(c), PORT), 5000);
                 s.setKeepAlive(true);
                 open = s;
                 wait = 30_000;
+                Tvh.IO.execute(() -> Fritz.nameFor(c, "00000")); // warm up the phonebook so the first call shows a name at once
                 BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream(), StandardCharsets.UTF_8));
                 String line;
                 while (wanted && (line = in.readLine()) != null) {
                     Ring r = parse(line);
                     if (r == null || r.id.equals(lastId)) continue;
                     lastId = r.id;
-                    Notice.show(c, c.getString(R.string.calls_title),
-                            r.number.isEmpty() ? c.getString(R.string.calls_unknown) : r.number, 20);
+                    String who = r.number.isEmpty() ? c.getString(R.string.calls_unknown) : r.number;
+                    String name = r.number.isEmpty() ? null : Fritz.nameFor(c, r.number);
+                    Notice.show(c, c.getString(R.string.calls_title), name == null ? who : name + " · " + who, 20);
                 }
             } catch (IOException ignored) {
                 // router off, call monitor not switched on, or the connection dropped: try again later
