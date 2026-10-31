@@ -164,6 +164,7 @@ public class MainActivity extends Activity {
         buildApps();
         current = new java.lang.ref.WeakReference<>(this);
         RemoteServer.start(this); // only if the phone remote was turned on
+        CallMonitor.start(this); // only if incoming-call banners were turned on
         showLiveState(null);
         // Just booted and Live TV is set to resume: go straight back to the last channel.
         if (b == null && SystemClock.elapsedRealtime() < 4 * 60 * 1000 && Sources.configured(this)
@@ -835,6 +836,11 @@ public class MainActivity extends Activity {
         rows.add(inputRow(getString(R.string.main_free_mem_menu, getString(Memory.auto(this) ? R.string.main_state_on : R.string.main_state_off)), () -> {
             Memory.setAuto(this, !Memory.auto(this));
             android.widget.Toast.makeText(this, getString(R.string.main_free_mem_menu, getString(Memory.auto(this) ? R.string.main_state_on : R.string.main_state_off)), android.widget.Toast.LENGTH_SHORT).show();
+        }));
+        rows.add(inputRow(getString(R.string.main_calls_menu, getString(CallMonitor.enabled(this) ? R.string.main_state_on : R.string.main_state_off)), () -> {
+            CallMonitor.setEnabled(this, !CallMonitor.enabled(this));
+            android.widget.Toast.makeText(this, CallMonitor.enabled(this) ? getString(R.string.main_calls_hint)
+                    : getString(R.string.main_calls_menu, getString(R.string.main_state_off)), android.widget.Toast.LENGTH_LONG).show();
         }));
         rows.add(inputRow(getString(R.string.main_phone_remote_menu), this::showRemoteSetup));
         if (!Tvh.prefs(this).getStringSet("hidden_user", Collections.emptySet()).isEmpty()) {

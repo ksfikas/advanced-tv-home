@@ -34,6 +34,10 @@
     <string name="main_weather_menu">Weather…</string>
     <string name="main_box_status_menu">Box status…</string>
     <string name="main_free_mem_menu">Free memory for live TV: %1$s</string>
+    <string name="main_calls_menu">Show incoming calls (Fritz!Box): %1$s</string>
+    <string name="main_calls_hint">On. Dial #96*5* once on a phone connected to the Fritz!Box to switch its call monitor on.</string>
+    <string name="calls_title">Incoming call</string>
+    <string name="calls_unknown">Unknown number</string>
     <string name="main_phone_remote_menu">Phone remote…</string>
     <string name="main_show_hidden_apps">Show hidden apps</string>
     <string name="main_all_sources">All sources…</string>

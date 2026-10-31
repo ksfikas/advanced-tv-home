@@ -31,6 +31,7 @@ public class MediaWatcher extends NotificationListenerService {
     @Override
     public void onListenerConnected() {
         RemoteServer.start(this); // keeps the phone remote up even before home is shown
+        CallMonitor.start(this); // incoming-call banners, if switched on
         sessions = getSystemService(MediaSessionManager.class);
         if (sessions == null) return;
         ComponentName me = new ComponentName(this, MediaWatcher.class);
