@@ -43,6 +43,10 @@
   .toast { position: fixed; left: 50%; bottom: 90px; transform: translateX(-50%); background: #fff; color: #111; padding: 10px 16px; border-radius: 20px; font-size: 14px; opacity: 0; transition: opacity .2s; pointer-events: none; }
   .toast.show { opacity: 1; }
   .pin input { font-size: 32px; letter-spacing: .5em; text-align: center; }
+  svg.i { width: 1.2em; height: 1.2em; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; vertical-align: -.22em; margin-right: .45em; flex: none; }
+  button[data-ic]:empty svg.i, .big svg.i { margin: 0; }
+  .big svg.i { width: 1.35em; height: 1.35em; }
+  nav button svg.i { display: block; width: 22px; height: 22px; margin: 0 auto 5px; stroke-width: 1.6; }
 </style>
 </head>
 <body>
@@ -59,21 +63,21 @@
   <div class="now" id="now"><span class="sub" data-i18n="nothing_playing_short">Nothing playing</span></div>
   <div class="label" data-i18n="lbl_channel">Channel</div>
   <div class="grid g3">
-    <button class="big" onclick="player('down')" data-i18n="ch_down">▼ CH</button>
-    <button class="big" onclick="player('prev')" data-i18n="ch_prev">↺ Prev</button>
-    <button class="big" onclick="player('up')" data-i18n="ch_up">CH ▲</button>
+    <button class="big" onclick="player('down')" data-i18n="ch_down" data-ic="down">▼ CH</button>
+    <button class="big" onclick="player('prev')" data-i18n="ch_prev" data-ic="back">↺ Prev</button>
+    <button class="big" onclick="player('up')" data-i18n="ch_up" data-ic="up">CH ▲</button>
   </div>
   <div class="label" data-i18n="lbl_playback">Playback</div>
   <div class="grid g3">
-    <button onclick="player('pause')" data-i18n="pause">❚❚ Pause</button>
-    <button onclick="player('live')" data-i18n="live">● Live</button>
-    <button onclick="player('info')" data-i18n="info">ⓘ Info</button>
+    <button onclick="player('pause')" data-i18n="pause" data-ic="pause">❚❚ Pause</button>
+    <button onclick="player('live')" data-i18n="live" data-ic="live">● Live</button>
+    <button onclick="player('info')" data-i18n="info" data-ic="info">ⓘ Info</button>
   </div>
   <div class="label" data-i18n="lbl_volume">Volume</div>
   <div class="grid g3">
-    <button class="big" onclick="call('volume',{do:'down'})" data-i18n-aria="vol_down">−</button>
-    <button class="big" onclick="call('volume',{do:'mute'})" data-i18n-aria="vol_mute">🔇</button>
-    <button class="big" onclick="call('volume',{do:'up'})" data-i18n-aria="vol_up">+</button>
+    <button class="big" onclick="call('volume',{do:'down'})" data-i18n-aria="vol_down" data-ic="minus"></button>
+    <button class="big" onclick="call('volume',{do:'mute'})" data-i18n-aria="vol_mute" data-ic="mute"></button>
+    <button class="big" onclick="call('volume',{do:'up'})" data-i18n-aria="vol_up" data-ic="plus"></button>
   </div>
   <div class="label" data-i18n="lbl_sleep">Sleep timer</div>
   <div class="grid g3">
@@ -83,25 +87,25 @@
   </div>
   <div class="label" data-i18n="lbl_wallpaper">Wallpaper</div>
   <div class="grid g2">
-    <button onclick="$('photo').click()" data-i18n="send_photo">🖼 Send a photo</button>
+    <button onclick="$('photo').click()" data-i18n="send_photo" data-ic="image">🖼 Send a photo</button>
     <button id="wallmode" onclick="wallMode()" data-i18n="wall_mix">Mix with built-in</button>
   </div>
   <input id="photo" type="file" accept="image/*" multiple class="hide">
   <div class="sub" id="wallinfo" style="margin:8px 4px 0"></div>
   <div class="label" data-i18n="lbl_tv">TV</div>
   <div class="grid g2">
-    <button onclick="call('home')" data-i18n="home">⌂ Home</button>
-    <button onclick="player('stop')" data-i18n="stop_watching">■ Stop watching</button>
-    <button onclick="power('on')" data-i18n="turn_on">⏻ Turn on</button>
-    <button onclick="power('off')" data-i18n="turn_off">⏻ Turn off</button>
+    <button onclick="call('home')" data-i18n="home" data-ic="home">⌂ Home</button>
+    <button onclick="player('stop')" data-i18n="stop_watching" data-ic="stop">■ Stop watching</button>
+    <button onclick="power('on')" data-i18n="turn_on" data-ic="power">⏻ Turn on</button>
+    <button onclick="power('off')" data-i18n="turn_off" data-ic="power">⏻ Turn off</button>
   </div>
   <div class="label" data-i18n="lbl_server">Server</div>
   <button id="statusbtn" style="width:100%" onclick="toggleStatus()" data-i18n="status_btn">Tvheadend status</button>
   <div class="now hide" id="status" style="margin-top:10px;line-height:1.5"></div>
   <div class="label" data-i18n="lbl_backup">Settings backup</div>
   <div class="grid g2">
-    <button onclick="saveBackup()" data-i18n="backup_save">⬇ Save backup</button>
-    <button onclick="$('backupfile').click()" data-i18n="backup_restore">⬆ Restore</button>
+    <button onclick="saveBackup()" data-i18n="backup_save" data-ic="download">⬇ Save backup</button>
+    <button onclick="$('backupfile').click()" data-i18n="backup_restore" data-ic="upload">⬆ Restore</button>
   </div>
   <input id="backupfile" type="file" accept=".json,application/json" class="hide">
   <div class="sub" data-i18n="backup_note" style="margin:8px 4px 0">Favourites, dock, sources, language and screensaver. Passwords are not included.</div>
@@ -139,10 +143,10 @@
 </section>
 
 <nav id="nav" class="hide">
-  <button data-tab="remote" class="sel" data-i18n="nav_remote">Remote</button>
-  <button data-tab="channels" data-i18n="nav_channels">Channels</button>
-  <button data-tab="guide" data-i18n="nav_guide">Guide</button>
-  <button data-tab="apps" data-i18n="nav_apps">Apps</button>
+  <button data-tab="remote" class="sel" data-i18n="nav_remote" data-ic="remote">Remote</button>
+  <button data-tab="channels" data-i18n="nav_channels" data-ic="list">Channels</button>
+  <button data-tab="guide" data-i18n="nav_guide" data-ic="calendar">Guide</button>
+  <button data-tab="apps" data-i18n="nav_apps" data-ic="grid">Apps</button>
 </nav>
 <div class="toast" id="toast"></div>
 
@@ -161,12 +165,12 @@ const DICT = {
     pair_sub: 'Enter the 4-digit PIN shown on the TV under Inputs → Phone remote.',
     pair_btn: 'Pair',
     remote_title: 'Remote', nothing_playing_short: 'Nothing playing',
-    lbl_channel: 'Channel', ch_down: '▼ CH', ch_prev: '↺ Prev', ch_up: 'CH ▲',
-    lbl_playback: 'Playback', pause: '❚❚ Pause', live: '● Live', info: 'ⓘ Info',
+    lbl_channel: 'Channel', ch_down: 'CH', ch_prev: 'Prev', ch_up: 'CH',
+    lbl_playback: 'Playback', pause: 'Pause', live: 'Live', info: 'Info',
     lbl_volume: 'Volume',
     lbl_sleep: 'Sleep timer', sleep_30: '30 min', sleep_60: '1 h', sleep_off: 'Off',
-    lbl_wallpaper: 'Wallpaper', send_photo: '🖼 Send a photo', wall_mix: 'Mix with built-in',
-    lbl_tv: 'TV', home: '⌂ Home', stop_watching: '■ Stop watching', turn_on: '⏻ Turn on', turn_off: '⏻ Turn off',
+    lbl_wallpaper: 'Wallpaper', send_photo: 'Send a photo', wall_mix: 'Mix with built-in',
+    lbl_tv: 'TV', home: 'Home', stop_watching: 'Stop watching', turn_on: 'Turn on', turn_off: 'Turn off',
     channels_title: 'Channels', channels_sub: 'Tap to watch on the TV',
     guide_title: 'Guide', search_ph: 'Search, or browse what\'s on below',
     apps_title: 'Apps', apps_sub: 'Opens on the TV',
@@ -188,7 +192,7 @@ const DICT = {
     lbl_home: 'Smart home', hooks_btn: 'Lights and scenes…', hook_play: 'When playing starts', hook_pause: 'When paused', hook_stop: 'When stopped',
     hook_test: 'Test', hook_save: 'Save', hook_saved: 'Saved', hook_called: 'Called',
     hooks_note: 'The TV calls these web addresses (POST), for example Home Assistant webhooks. Leave empty to switch off.',
-    lbl_backup: 'Settings backup', backup_save: '⬇ Save backup', backup_restore: '⬆ Restore',
+    lbl_backup: 'Settings backup', backup_save: 'Save backup', backup_restore: 'Restore',
     backup_note: 'Favourites, dock, sources, language and screensaver. Passwords are not included.',
     backup_done: n => n + ' settings restored', err_not_backup: 'That is not a backup from this app',
     chan_search_ph: 'Find a channel by name or number', lbl_server: 'Server', status_btn: 'Tvheadend status',
@@ -218,12 +222,12 @@ const DICT = {
     pair_sub: 'Εισαγάγετε το PIN 4 ψηφίων που εμφανίζεται στην τηλεόραση, στις Εισόδους → Τηλεχειριστήριο κινητού.',
     pair_btn: 'Σύνδεση',
     remote_title: 'Τηλεχειριστήριο', nothing_playing_short: 'Καμία αναπαραγωγή',
-    lbl_channel: 'Κανάλι', ch_down: '▼ CH', ch_prev: '↺ Προηγ.', ch_up: 'CH ▲',
-    lbl_playback: 'Αναπαραγωγή', pause: '❚❚ Παύση', live: '● Ζωντανά', info: 'ⓘ Πληροφ.',
+    lbl_channel: 'Κανάλι', ch_down: 'CH', ch_prev: 'Προηγ.', ch_up: 'CH',
+    lbl_playback: 'Αναπαραγωγή', pause: 'Παύση', live: 'Ζωντανά', info: 'Πληροφ.',
     lbl_volume: 'Ένταση',
     lbl_sleep: 'Χρονοδιακόπτης ύπνου', sleep_30: '30 λεπτά', sleep_60: '1 ώρα', sleep_off: 'Ανενεργό',
-    lbl_wallpaper: 'Ταπετσαρία', send_photo: '🖼 Αποστολή φωτογραφίας', wall_mix: 'Μίξη με τις ενσωματωμένες',
-    lbl_tv: 'TV', home: '⌂ Αρχική', stop_watching: '■ Διακοπή προβολής', turn_on: '⏻ Ενεργοποίηση', turn_off: '⏻ Απενεργοποίηση',
+    lbl_wallpaper: 'Ταπετσαρία', send_photo: 'Αποστολή φωτογραφίας', wall_mix: 'Μίξη με τις ενσωματωμένες',
+    lbl_tv: 'TV', home: 'Αρχική', stop_watching: 'Διακοπή προβολής', turn_on: 'Ενεργοποίηση', turn_off: 'Απενεργοποίηση',
     channels_title: 'Κανάλια', channels_sub: 'Πατήστε για προβολή στην τηλεόραση',
     guide_title: 'Οδηγός', search_ph: 'Αναζήτηση ή περιήγηση παρακάτω',
     apps_title: 'Εφαρμογές', apps_sub: 'Ανοίγει στην τηλεόραση',
@@ -245,7 +249,7 @@ const DICT = {
     lbl_home: 'Έξυπνο σπίτι', hooks_btn: 'Φώτα και σκηνές…', hook_play: 'Όταν ξεκινά η αναπαραγωγή', hook_pause: 'Όταν γίνεται παύση', hook_stop: 'Όταν σταματά',
     hook_test: 'Δοκιμή', hook_save: 'Αποθήκευση', hook_saved: 'Αποθηκεύτηκε', hook_called: 'Κλήθηκε',
     hooks_note: 'Η τηλεόραση καλεί αυτές τις διευθύνσεις (POST), π.χ. webhooks του Home Assistant. Αφήστε κενό για απενεργοποίηση.',
-    lbl_backup: 'Αντίγραφο ρυθμίσεων', backup_save: '⬇ Αποθήκευση αντιγράφου', backup_restore: '⬆ Επαναφορά',
+    lbl_backup: 'Αντίγραφο ρυθμίσεων', backup_save: 'Αποθήκευση αντιγράφου', backup_restore: 'Επαναφορά',
     backup_note: 'Αγαπημένα, dock, πηγές, γλώσσα και προφύλαξη οθόνης. Οι κωδικοί δεν περιλαμβάνονται.',
     backup_done: n => 'Επαναφέρθηκαν ' + n + ' ρυθμίσεις', err_not_backup: 'Αυτό δεν είναι αντίγραφο από αυτή την εφαρμογή',
     chan_search_ph: 'Βρείτε κανάλι με όνομα ή αριθμό', lbl_server: 'Διακομιστής', status_btn: 'Κατάσταση Tvheadend',
@@ -273,10 +277,34 @@ function t(key, ...a) {
   return v.replace(/\{(\d)\}/g, (m, i) => a[+i] == null ? '' : a[+i]);
 }
 const errText = j => (j.code && DICT[LANG]['err_' + j.code]) || j.error;
+// One quiet set of thin line icons (24-grid, drawn in the text colour) instead of glyphs and emoji, which look different on every phone.
+const ICONS = {
+  up: '<path d="m18 15-6-6-6 6"/>', down: '<path d="m6 9 6 6 6-6"/>',
+  back: '<path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-15-6.7L3 13"/>',
+  pause: '<rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/>',
+  live: '<circle cx="12" cy="12" r="2.5"/><path d="M7.8 7.8a6 6 0 0 0 0 8.4M16.2 7.8a6 6 0 0 1 0 8.4"/>',
+  info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',
+  minus: '<path d="M5 12h14"/>', plus: '<path d="M12 5v14M5 12h14"/>',
+  mute: '<path d="M11 5 6 9H3v6h3l5 4V5z"/><path d="m22 9-6 6M16 9l6 6"/>',
+  image: '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.5"/><path d="m21 16-5-5-8 8"/>',
+  home: '<path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/>',
+  stop: '<rect x="6" y="6" width="12" height="12" rx="2"/>',
+  power: '<path d="M12 3v9"/><path d="M6.4 6.6a8 8 0 1 0 11.2 0"/>',
+  download: '<path d="M12 4v12m-5-5 5 5 5-5M5 20h14"/>', upload: '<path d="M12 16V4m-5 5 5-5 5 5M5 20h14"/>',
+  remote: '<rect x="7" y="2" width="10" height="20" rx="5"/><circle cx="12" cy="9" r="1.8"/>',
+  list: '<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
+  calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+  grid: '<rect x="4" y="4" width="6" height="6" rx="1.2"/><rect x="14" y="4" width="6" height="6" rx="1.2"/><rect x="4" y="14" width="6" height="6" rx="1.2"/><rect x="14" y="14" width="6" height="6" rx="1.2"/>',
+};
+const ic = n => '<svg class="i" viewBox="0 0 24 24" aria-hidden="true">' + (ICONS[n] || '') + '</svg>';
 function applyLang() {
   document.documentElement.lang = LANG;
   document.title = t('title');
-  document.querySelectorAll('[data-i18n]').forEach(e => { e.textContent = t(e.dataset.i18n); });
+  document.querySelectorAll('[data-i18n]').forEach(e => {
+    e.textContent = t(e.dataset.i18n);
+    if (e.dataset.ic) e.insertAdjacentHTML('afterbegin', ic(e.dataset.ic));
+  });
+  document.querySelectorAll('[data-ic]:not([data-i18n])').forEach(e => { e.innerHTML = ic(e.dataset.ic); });
   document.querySelectorAll('[data-i18n-ph]').forEach(e => { e.placeholder = t(e.dataset.i18nPh); });
   document.querySelectorAll('[data-i18n-aria]').forEach(e => { e.setAttribute('aria-label', t(e.dataset.i18nAria)); e.title = t(e.dataset.i18nAria); });
 }
