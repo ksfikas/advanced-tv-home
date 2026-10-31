@@ -24,6 +24,13 @@ public class CallMonitorTest {
     }
 
     @Test
+    public void aHangUpNamesTheCallThatEnded() {
+        assertEquals("1", CallMonitor.endedId("31.10.26 21:06:00;DISCONNECT;1;40;"));
+        assertNull(CallMonitor.endedId("31.10.26 21:05:11;RING;1;0301234567;12345;SIP0;"));
+        assertNull(CallMonitor.endedId(null));
+    }
+
+    @Test
     public void everythingElseIsIgnored() {
         assertNull(CallMonitor.parse("31.10.26 21:05:11;CALL;1;0;12345;0301234567;SIP0;"));
         assertNull(CallMonitor.parse("31.10.26 21:05:20;CONNECT;1;1;0301234567;"));

@@ -34,6 +34,13 @@ final class CallMonitor {
         return new Ring(f[2], f[3].trim(), f[4].trim());
     }
 
+    /** The id of a call a monitor line says has ended, or null for any other line. */
+    static String endedId(String line) {
+        if (line == null) return null;
+        String[] f = line.trim().split(";", -1);
+        return f.length >= 3 && f[1].equals("DISCONNECT") ? f[2] : null;
+    }
+
     private static volatile Thread worker;
     private static volatile Socket open;
     private static volatile boolean wanted;
@@ -67,6 +74,7 @@ final class CallMonitor {
     private static void listen(Context c) {
         long wait = 30_000;
         String lastId = null;
+        long lastAt = 0;
         while (wanted) {
             try (Socket s = new Socket()) {
                 s.connect(new InetSocketAddress(Fritz.host(c), PORT), 5000);
@@ -77,9 +85,14 @@ final class CallMonitor {
                 BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream(), StandardCharsets.UTF_8));
                 String line;
                 while (wanted && (line = in.readLine()) != null) {
+                    // The router reuses small call numbers: forget one when its call ends (or after half a minute).
+                    String ended = endedId(line);
+                    if (ended != null && ended.equals(lastId)) lastId = null;
                     Ring r = parse(line);
-                    if (r == null || r.id.equals(lastId)) continue;
+                    long now = System.currentTimeMillis();
+                    if (r == null || (r.id.equals(lastId) && now - lastAt < 30_000)) continue;
                     lastId = r.id;
+                    lastAt = now;
                     String who = r.number.isEmpty() ? c.getString(R.string.calls_unknown) : r.number;
                     String name = r.number.isEmpty() ? null : Fritz.nameFor(c, r.number);
                     Notice.show(c, c.getString(R.string.calls_title), name == null ? who : name + " · " + who, 20);
