@@ -373,8 +373,7 @@ public class PlayerActivity extends Activity {
                 ? () -> new AuthDataSource(tvh, http.createDataSource())
                 : () -> new LiveBuffer(http.createDataSource(), spill);
         DefaultExtractorsFactory extractors = new DefaultExtractorsFactory()
-                .setTsExtractorFlags(DefaultTsPayloadReaderFactory.FLAG_ALLOW_NON_IDR_KEYFRAMES
-                        | DefaultTsPayloadReaderFactory.FLAG_DETECT_ACCESS_UNITS);
+                .setTsExtractorFlags(DefaultTsPayloadReaderFactory.FLAG_ALLOW_NON_IDR_KEYFRAMES);
         player.setMediaSource(new ProgressiveMediaSource.Factory(source, extractors)
                 .createMediaSource(MediaItem.fromUri(url)));
         // A recording stopped part-way carries on from there; "Start from the beginning" is in the menu.
