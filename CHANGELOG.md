@@ -9,7 +9,7 @@ All notable changes to Advanced TV Home. Newest first. Releases are tagged `vX.Y
 
 - **Phone remote apps**: the Apps tab shows each app's icon, with the dock's favourites on top (as on the TV) and the other apps below; apps hidden on the TV stay hidden. Icons load as they scroll into view.
 
-- **Phone remote icons**: the remote page now uses one set of thin line icons (channel, playback, volume, TV, backup and the bottom tabs) instead of text symbols and emoji, which looked different on every phone.
+- **Phone remote icons**: the remote page now uses one set of thin line icons (Lucide) (channel, playback, volume, TV, backup and the bottom tabs) instead of text symbols and emoji, which looked different on every phone.
 
 - **Banner from outside**: the phone remote's `/api/notify` (title, text, seconds) shows a short banner, for Home Assistant, scripts or a doorbell.
 

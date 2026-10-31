@@ -458,7 +458,8 @@ its wallpaper set is still part of it.
 
 Built on [AndroidX Media3](https://github.com/androidx/media) (playback, Apache 2.0),
 [ZXing](https://github.com/zxing/zxing) (QR codes, Apache 2.0),
-[Material Symbols](https://github.com/google/material-design-icons) (icons, Apache 2.0) and
+[Material Symbols](https://github.com/google/material-design-icons) (icons, Apache 2.0),
+[Lucide](https://lucide.dev) (the phone remote's icons, ISC; licence in [docs/LICENSE-lucide.txt](docs/LICENSE-lucide.txt)) and
 [Open-Meteo](https://open-meteo.com) (weather data, CC BY 4.0). Wallpaper photos are from Wikimedia
 Commons, each under its own licence: see [launcher/WALLPAPER-CREDITS.md](launcher/WALLPAPER-CREDITS.md).
 Channel logos are not included; they come from your Tvheadend server. News headlines, photos and the
