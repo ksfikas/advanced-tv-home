@@ -418,8 +418,8 @@ public class PlayerActivity extends Activity {
         p.addListener(new Player.Listener() {
             @Override public void onPlaybackStateChanged(int state) {
                 handler.removeCallbacks(stall);
-                if (state == Player.STATE_READY) { retries = 0; status(""); if (!firstFrame) handler.postDelayed(noPicture, 4000); }
-                else if (state == Player.STATE_BUFFERING) { status("…"); handler.postDelayed(stall, 8000); }
+                if (state == Player.STATE_READY) { retries = 0; status(""); if (!firstFrame) handler.postDelayed(noPicture, 7000); }
+                else if (state == Player.STATE_BUFFERING) { status("…"); handler.postDelayed(stall, 15000); }
                 else if (state == Player.STATE_ENDED) {
                     if (isRecording()) { Tvh.saveResume(PlayerActivity.this, recordingUuid, recordingTitle, 0, 0); finish(); }
                     else failed(getString(R.string.player_stream_ended)); // also how an over-long live pause gets back to live
