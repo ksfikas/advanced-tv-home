@@ -134,6 +134,8 @@ public class MainActivity extends Activity {
     private List<String> shownChannels = Collections.emptyList();
     private long channelsLoadedAt, nowLoadedAt;
     private boolean liveLoading, isResumed;
+    /** The server says a recording or the guide changed: reload what is on now, so the recording marks follow. */
+    private final ServerEvents.Listener pushed = () -> { nowLoadedAt = 0; refreshLive(false); };
     private String liveStateKey;
     private final Runnable retryLive = () -> refreshLive(false);
     static final long LIVE_RETRY_MS = 15 * 1000;
@@ -201,6 +203,7 @@ public class MainActivity extends Activity {
             runOnUiThread(() -> { lastUsed = used; if (dockFocus != null && !isDestroyed()) showWatched(dockFocus); });
         });
         isResumed = true;
+        if (Tvh.get(this) != null) ServerEvents.watch(this, pushed);
         if (!shownChannels.isEmpty()) showChannels(Tvh.channels); // e.g. a new "continue watching" tile
         refreshLive(false);
         View last = lastFocusedId == View.NO_ID ? null : findViewById(lastFocusedId);
@@ -220,6 +223,7 @@ public class MainActivity extends Activity {
         handler.removeCallbacks(rotateWallpaper);
         handler.removeCallbacks(shelfTick);
         handler.removeCallbacks(retryLive);
+        ServerEvents.unwatch(pushed);
         isResumed = false;
         unregisterReceiver(tick);
         if (inputsPopup != null) inputsPopup.dismiss();

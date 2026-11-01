@@ -78,7 +78,16 @@ public class RecordingsActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        ServerEvents.watch(this, pushed);
         load();
+    }
+
+    private final ServerEvents.Listener pushed = () -> { if (!isDestroyed()) load(); };
+
+    @Override
+    protected void onPause() {
+        ServerEvents.unwatch(pushed);
+        super.onPause();
     }
 
     private void load() {

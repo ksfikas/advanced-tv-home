@@ -5,6 +5,8 @@ All notable changes to Advanced TV Home. Newest first. Releases are tagged `vX.Y
 
 ## 3.0.5
 
+- **Live updates from the server**: the guide, recordings list and home screen now refresh by themselves when a recording starts, stops or is cancelled, and the player's stream info shows the tuner's signal and SNR as the server reports them, instead of asking every two seconds. It uses Tvheadend's own change notifications over plain HTTP, only while a screen needs them, and falls back to the old behaviour if the server cannot be reached.
+
 - **Smaller download**: the built-in wallpapers are re-encoded (same 1080p, no visible difference), taking the app from 5.7 MB to 3.6 MB.
 
 - **One press for voice**: the Search tile in the Live TV row (and the Voice search button in the Control overlay) now open Search already listening, so "watch MEGA" takes one press of OK and one sentence. Typing is still there if you prefer.

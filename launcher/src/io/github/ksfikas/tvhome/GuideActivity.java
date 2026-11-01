@@ -94,7 +94,17 @@ public class GuideActivity extends Activity {
     protected void onResume() {
         super.onResume();
         // Coming back (e.g. after recording something elsewhere): refresh the visible window's marks.
+        ServerEvents.watch(this, pushed);
         if (loadedTo > loadedFrom) reload();
+    }
+
+    /** The server says a recording or the guide changed: refresh the visible window. */
+    private final ServerEvents.Listener pushed = () -> { if (!isDestroyed() && loadedTo > loadedFrom) reload(); };
+
+    @Override
+    protected void onPause() {
+        ServerEvents.unwatch(pushed);
+        super.onPause();
     }
 
     /** Fetch the next six hours after what we have. */

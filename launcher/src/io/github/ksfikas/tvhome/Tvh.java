@@ -669,6 +669,38 @@ final class Tvh {
         throw new IOException(txt.s(R.string.tvh_rejected_login));
     }
 
+    /**
+     * Like {@link #get}, but for a request the server holds open for a while (change notifications): not under the
+     * shared lock, so other requests keep flowing, and with a longer read time.
+     */
+    byte[] getLong(String path, int readTimeoutMs) throws IOException {
+        for (int attempt = 0; attempt < 3; attempt++) {
+            HttpURLConnection con = (HttpURLConnection) new URL(base + path).openConnection();
+            con.setConnectTimeout(6000);
+            con.setReadTimeout(readTimeoutMs);
+            con.setInstanceFollowRedirects(false);
+            String auth;
+            synchronized (this) { auth = authorization(path); }
+            if (auth != null) con.setRequestProperty("Authorization", auth);
+            try {
+                int code = con.getResponseCode();
+                if (code == 401) {
+                    synchronized (this) { parseChallenge(con.getHeaderField("WWW-Authenticate")); }
+                    if (user.isEmpty()) throw new IOException(txt.s(R.string.tvh_needs_login));
+                    if (attempt < 2) continue;
+                    throw new IOException(txt.s(R.string.tvh_rejected_login));
+                }
+                if (code != 200) throw new IOException(txt.s(R.string.tvh_http_error, code));
+                return readAll(con.getInputStream());
+            } catch (java.net.ConnectException | java.net.SocketTimeoutException e) {
+                throw new IOException(txt.s(R.string.tvh_unreachable, base));
+            } finally {
+                con.disconnect();
+            }
+        }
+        throw new IOException(txt.s(R.string.tvh_rejected_login));
+    }
+
     private static byte[] download(String url) throws IOException {
         HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();
         con.setConnectTimeout(6000);

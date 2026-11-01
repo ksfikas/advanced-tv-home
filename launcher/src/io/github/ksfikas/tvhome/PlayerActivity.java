@@ -134,6 +134,8 @@ public class PlayerActivity extends Activity {
 
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final Runnable infoTick = this::refreshInfo;
+    /** Nothing to redraw here on a change; listening is what keeps the tuner figures flowing for the info panel. */
+    private final ServerEvents.Listener pushed = () -> { };
     private final Runnable sleepTick = this::sleepTick;
     private final Runnable startSaver = this::startSaver;
     private final Runnable drift = this::drift;
@@ -228,6 +230,7 @@ public class PlayerActivity extends Activity {
         visible = true;
         shown = new java.lang.ref.WeakReference<>(this);
         if ((index >= 0 || isRecording()) && player == null) startPlayback();
+        if (tvh != null) ServerEvents.watch(this, pushed);
         if (sleepAt > 0) sleepTick();
         if (infoShown) refreshInfo();
         wake();
@@ -280,6 +283,7 @@ public class PlayerActivity extends Activity {
     @Override
     protected void onStop() {
         super.onStop();
+        ServerEvents.unwatch(pushed);
         visible = false;
         playing = null;
         HomeHooks.event(this, HomeHooks.STOP);
@@ -910,13 +914,26 @@ public class PlayerActivity extends Activity {
         infoPanel.setText(base.trim());
         infoPanel.setVisibility(View.VISIBLE);
         if (!isRecording() && index >= 0 && tvh != null && list.get(index).fromTvh()) { // tuner figures come from Tvheadend
+            Tvh.Status pushedNow = ServerEvents.status(); // the server pushes the tuner figures while we watch
+            if (pushedNow != null) {
+                showStatus(base, pushedNow);
+                handler.postDelayed(infoTick, 2000);
+                return;
+            }
             String name = list.get(index).name;
             Tvh.IO.execute(() -> {
                 Tvh.Status st;
                 try { st = tvh.status(name); } catch (IOException e) { st = null; }
                 Tvh.Status f = st;
-                runOnUiThread(() -> {
-                    if (!infoShown || isDestroyed()) return;
+                runOnUiThread(() -> showStatus(base, f));
+            });
+        }
+        handler.postDelayed(infoTick, 2000);
+    }
+
+    /** Adds the tuner figures (signal, SNR, rate, errors) under the stream info; f is null when the server will not say. */
+    private void showStatus(String base, Tvh.Status f) {
+        if (!infoShown || isDestroyed()) return;
                     StringBuilder t = new StringBuilder(base);
                     if (f == null) t.append(infoLabel(R.string.player_info_signal)).append(getString(R.string.player_admins_only));
                     else {
@@ -929,11 +946,7 @@ public class PlayerActivity extends Activity {
                         }
                         if (f.errors != null) t.append(infoLabel(R.string.player_info_errors)).append(f.errors);
                     }
-                    infoPanel.setText(t.toString().trim());
-                });
-            });
-        }
-        handler.postDelayed(infoTick, 2000);
+        infoPanel.setText(t.toString().trim());
     }
 
     /** A stream-info label padded so the values line up in the monospace panel. */
