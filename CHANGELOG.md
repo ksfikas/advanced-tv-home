@@ -5,6 +5,8 @@ All notable changes to Advanced TV Home. Newest first. Releases are tagged `vX.Y
 
 ## 3.0.5
 
+- **Smaller download**: the built-in wallpapers are re-encoded (same 1080p, no visible difference), taking the app from 5.7 MB to 3.6 MB.
+
 - **One press for voice**: the Search tile in the Live TV row (and the Voice search button in the Control overlay) now open Search already listening, so "watch MEGA" takes one press of OK and one sentence. Typing is still there if you prefer.
 
 - **Assistant hand-over (experimental)**: the app now answers "play MEGA on Advanced TV Home" and "search ERT 1 on Advanced TV Home" when Google's assistant passes them on. Whether the assistant does that on a given TV is up to Google.
