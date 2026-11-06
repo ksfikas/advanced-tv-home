@@ -8,6 +8,9 @@
     <!-- Section captions (shown in capitals) and header -->
     <string name="main_live_tv_caps">LIVE TV</string>
     <string name="main_radio_caps">RADIO</string>
+    <string name="main_games_caps">GAMES</string>
+    <string name="main_move_to_games">Move to Games</string>
+    <string name="main_move_out_games">Move out of Games</string>
     <string name="main_all_apps_caps">ALL APPS</string>
     <string name="main_greeting_night">GOOD NIGHT</string>
     <string name="main_greeting_morning">GOOD MORNING</string>
