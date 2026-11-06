@@ -129,11 +129,6 @@ public class MainActivity extends Activity {
     private final List<View> channelCards = new ArrayList<>(); // TV channels (or the placeholder card)
     private final List<View> actionCards = new ArrayList<>();  // Guide, Search, Recordings, Continue: the small 2×2 block before them
     private final List<View> radioCards = new ArrayList<>();
-    /** Games: apps Android marks as games (or you move there), as a row of their own under the radio. */
-    private final List<View> gameCards = new ArrayList<>();
-    private LinearLayout gamesSection, gamesRow;
-    private RowScroller gamesScroll;
-    private Set<String> gamePkgs = new HashSet<>();
     private final Map<String, TextView> channelNow = new HashMap<>();
     private final Map<String, ProgressBar> channelProgress = new HashMap<>();
     private List<String> shownChannels = Collections.emptyList();
@@ -397,20 +392,6 @@ public class MainActivity extends Activity {
         radioSection.setVisibility(View.GONE);
         content.addView(radioSection, llp(-1, -2, 0, 0, 0, dp(30)));
 
-        gamesSection = new LinearLayout(this);
-        gamesSection.setOrientation(LinearLayout.VERTICAL);
-        gamesSection.setClipChildren(false);
-        gamesSection.setClipToPadding(false);
-        TextView gamesLabel = text(11, "sans-serif-medium", 0x99FFFFFF);
-        gamesLabel.setText(getString(R.string.main_games_caps));
-        gamesLabel.setLetterSpacing(0.22f);
-        gamesSection.addView(gamesLabel, llp(-2, -2, dp(68), dp(8), 0, dp(18)));
-        gamesScroll = rowScroller();
-        gamesRow = (LinearLayout) gamesScroll.getChildAt(0);
-        gamesSection.addView(gamesScroll, new LinearLayout.LayoutParams(-1, -2));
-        gamesSection.setVisibility(View.GONE);
-        content.addView(gamesSection, llp(-1, -2, 0, 0, 0, dp(30)));
-
         appsLabel = text(11, "sans-serif-medium", 0x99FFFFFF);
         appsLabel.setText(getString(R.string.main_all_apps_caps));
         appsLabel.setLetterSpacing(0.22f);
@@ -527,25 +508,11 @@ public class MainActivity extends Activity {
         for (String p : dockList()) if (byPkg.containsKey(p)) dock.add(byPkg.remove(p));
         List<App> rest = new ArrayList<>(byPkg.values());
         Collections.sort(rest, (x, y) -> x.label.compareToIgnoreCase(y.label));
-        // Games get a row of their own; the rest stay in All apps.
-        Set<String> gamesIn = Tvh.prefs(this).getStringSet("games_user", Collections.emptySet());
-        Set<String> gamesOff = Tvh.prefs(this).getStringSet("games_off", Collections.emptySet());
-        List<App> games = new ArrayList<>();
-        gamePkgs = new HashSet<>();
-        for (java.util.Iterator<App> it = rest.iterator(); it.hasNext(); ) {
-            App a = it.next();
-            if (!isGame(a.pkg, gamesIn, gamesOff)) continue;
-            games.add(a);
-            gamePkgs.add(a.pkg);
-            it.remove();
-        }
 
         dockRow.removeAllViews();
         grid.removeAllViews();
         dockCards.clear();
         gridCards.clear();
-        gamesRow.removeAllViews();
-        gameCards.clear();
 
         for (int i = 0; i < dock.size(); i++) {
             View tile = tile(dock.get(i), true);
@@ -553,9 +520,6 @@ public class MainActivity extends Activity {
             p.setMargins(i == 0 ? 0 : dp(10), 0, i == dock.size() - 1 ? 0 : dp(10), 0);
             dockRow.addView(tile, p);
         }
-
-        for (int i = 0; i < games.size(); i++) addTile(gamesRow, tile(games.get(i), false, gameCards), i == 0, i == games.size() - 1);
-        gamesSection.setVisibility(games.isEmpty() ? View.GONE : View.VISIBLE);
 
         LinearLayout row = null;
         for (int i = 0; i < rest.size(); i++) {
@@ -585,19 +549,6 @@ public class MainActivity extends Activity {
         else if (!dockCards.isEmpty()) dockCards.get(0).requestFocus();
     }
 
-    /** A game when you moved it to Games, or Android marks it as one (unless you moved it out). */
-    private boolean isGame(String pkg, Set<String> movedIn, Set<String> movedOut) {
-        if (movedOut.contains(pkg)) return false;
-        if (movedIn.contains(pkg)) return true;
-        try {
-            android.content.pm.ApplicationInfo ai = getPackageManager().getApplicationInfo(pkg, 0);
-            return ai.category == android.content.pm.ApplicationInfo.CATEGORY_GAME
-                    || (ai.flags & android.content.pm.ApplicationInfo.FLAG_IS_GAME) != 0;
-        } catch (PackageManager.NameNotFoundException e) {
-            return false;
-        }
-    }
-
     private static final int DOCK_MAX = 6;
 
     /** Dock apps in order: the user's choice if they've edited it, else config.xml's list. */
@@ -617,16 +568,6 @@ public class MainActivity extends Activity {
         List<View> all = new ArrayList<>(dockCards);
         all.addAll(gridCards);
         for (View c : all) if (c.getTag() instanceof App && ((App) c.getTag()).pkg.equals(keep.pkg)) { c.requestFocus(); break; }
-    }
-
-    /** Move an app into the Games row, or back out to All apps. */
-    private void setGame(String pkg, boolean into) {
-        Set<String> in = new HashSet<>(Tvh.prefs(this).getStringSet("games_user", new HashSet<>()));
-        Set<String> out = new HashSet<>(Tvh.prefs(this).getStringSet("games_off", new HashSet<>()));
-        if (into) { in.add(pkg); out.remove(pkg); } else { out.add(pkg); in.remove(pkg); }
-        Tvh.prefs(this).edit().putStringSet("games_user", in).putStringSet("games_off", out).apply();
-        lastFocusedId = View.NO_ID;
-        buildApps();
     }
 
     /** Hold OK on any app: open, dock it or move it, hide it, app info, uninstall. */
@@ -651,10 +592,6 @@ public class MainActivity extends Activity {
                 dock.add(app.pkg);
                 setDock(dock, app);
             });
-            if (!gamePkgs.contains(app.pkg)) {
-                labels.add(getString(R.string.main_move_to_games));
-                actions.add(() -> setGame(app.pkg, true));
-            }
             labels.add(getString(R.string.main_hide_from_all_apps));
             actions.add(() -> {
                 Set<String> h = new HashSet<>(Tvh.prefs(this).getStringSet("hidden_user", new HashSet<>()));
@@ -663,10 +600,6 @@ public class MainActivity extends Activity {
                 lastFocusedId = View.NO_ID;
                 buildApps();
             });
-        }
-        if (gamePkgs.contains(app.pkg) && !inDock) {
-            labels.add(getString(R.string.main_move_out_games));
-            actions.add(() -> setGame(app.pkg, false));
         }
         labels.add(getString(R.string.main_app_info));
         actions.add(() -> launch(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, android.net.Uri.parse("package:" + app.pkg))
@@ -678,9 +611,7 @@ public class MainActivity extends Activity {
     }
 
     /** A 16:9 card with the app's banner; the name shows under it while focused. */
-    private View tile(App app, boolean inDock) { return tile(app, inDock, gridCards); }
-
-    private View tile(App app, boolean inDock, List<View> into) {
+    private View tile(App app, boolean inDock) {
         LinearLayout box = new LinearLayout(this);
         box.setOrientation(LinearLayout.VERTICAL);
         box.setClipChildren(false);
@@ -759,11 +690,11 @@ public class MainActivity extends Activity {
                 showArt(null);
                 fadeGlow(0.35f);
                 titleBox.animate().alpha(0f).setDuration(200).start();
-                if (into == gameCards) onGameFocus(v); else scrollToRow(box);
+                scrollToRow(box);
             }
         });
 
-        (inDock ? dockCards : into).add(card);
+        (inDock ? dockCards : gridCards).add(card);
         return box;
     }
 
@@ -777,7 +708,7 @@ public class MainActivity extends Activity {
 
     /** Called when a tile gains focus: remember it for its row, and re-aim the neighbouring rows at it. */
     private void remember(View v) {
-        for (List<View> row : Arrays.asList(dockCards, channelCards, radioCards, gameCards, gridCards)) {
+        for (List<View> row : Arrays.asList(dockCards, channelCards, radioCards, gridCards)) {
             if (!row.contains(v)) continue;
             if (rowMemory.get(row) != v) { rowMemory.put(row, v); wireFocus(); }
             return;
@@ -791,7 +722,6 @@ public class MainActivity extends Activity {
         List<List<View>> live = new ArrayList<>();
         if (!channelCards.isEmpty()) live.add(channelCards);
         if (!radioCards.isEmpty()) live.add(radioCards);
-        if (!gameCards.isEmpty()) live.add(gameCards);
         View firstLive = live.isEmpty() ? null : rowTarget(live.get(0));
         View lastLive = live.isEmpty() ? null : rowTarget(live.get(live.size() - 1));
         for (int i = 0; i < pills.size(); i++) {
@@ -829,7 +759,7 @@ public class MainActivity extends Activity {
         // Up from its top row to the dock, Down from its bottom row to the next row.
         int a = actionCards.size();
         View firstChannel = channelCards.isEmpty() ? null : channelCards.get(0);
-        View below = !radioCards.isEmpty() ? rowTarget(radioCards) : !gameCards.isEmpty() ? rowTarget(gameCards) : g > 0 ? rowTarget(gridCards) : null;
+        View below = !radioCards.isEmpty() ? rowTarget(radioCards) : g > 0 ? rowTarget(gridCards) : null;
         for (int i = 0; i < a; i++) {
             View c = actionCards.get(i);
             boolean leftCol = i % 2 == 0, topRow = i < 2;
@@ -1728,16 +1658,6 @@ public class MainActivity extends Activity {
         android.text.SpannableString s = new android.text.SpannableString("●  " + ch.now.title);
         s.setSpan(new android.text.style.ForegroundColorSpan(0xFFFF5252), 0, 1, 0);
         return s;
-    }
-
-    /** Games row: sits a third of the way down, like the radio row. */
-    private void onGameFocus(View card) {
-        lastFocusedId = card.getId();
-        int screenH = getResources().getDisplayMetrics().heightPixels;
-        int target = gamesSection.getTop() - (int) (screenH * 0.38f);
-        int max = Math.max(0, content.getHeight() - scroll.getHeight());
-        scroll.smoothScrollTo(0, Math.max(0, Math.min(target, max)));
-        gamesScroll.reveal(card);
     }
 
     private void onChannelFocus(View card) {

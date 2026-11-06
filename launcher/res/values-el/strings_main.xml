@@ -8,9 +8,6 @@
     <!-- Τίτλοι ενοτήτων (σε κεφαλαία) και κεφαλίδα -->
     <string name="main_live_tv_caps">ΖΩΝΤΑΝΗ TV</string>
     <string name="main_radio_caps">ΡΑΔΙΟΦΩΝΟ</string>
-    <string name="main_games_caps">ΠΑΙΧΝΙΔΙΑ</string>
-    <string name="main_move_to_games">Μετακίνηση στα Παιχνίδια</string>
-    <string name="main_move_out_games">Αφαίρεση από τα Παιχνίδια</string>
     <string name="main_all_apps_caps">ΟΛΕΣ ΟΙ ΕΦΑΡΜΟΓΕΣ</string>
     <string name="main_greeting_night">ΚΑΛΗΝΥΧΤΑ</string>
     <string name="main_greeting_morning">ΚΑΛΗΜΕΡΑ</string>
